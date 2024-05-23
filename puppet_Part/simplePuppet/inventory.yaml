@@ -6,3 +6,4 @@ targets:
       ssh:
         user: karlis
         password: zakis123
+        sudo-password: zakis123
