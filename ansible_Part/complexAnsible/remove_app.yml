@@ -5,7 +5,7 @@
   tasks:
     - name: Stop the application service
       systemd:
-        name: sample-app
+        name: flask-app
         state: stopped
         enabled: no
 

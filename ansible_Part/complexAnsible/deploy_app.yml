@@ -35,20 +35,27 @@
 
     - name: Clone the application repository
       git:
-        repo: 'https://github.com/sample/sample-app.git'
+        repo: 'https://github.com/pallets/flask.git'
         dest: /opt/sample-app
 
     - name: Install application dependencies
       pip:
-        requirements: /opt/sample-app/requirements.txt
+        requirements: /opt/sample-app/examples/tutorial/requirements.txt
 
     - name: Configure the application
-      template:
-        src: templates/config.j2
-        dest: /opt/sample-app/config.ini
+      copy:
+        content: |
+          [database]
+          host = localhost
+          user = sampleuser
+          password = samplepassword
+          database = sampledb
+        dest: /opt/sample-app/examples/tutorial/config.ini
 
     - name: Ensure the application is running
       systemd:
-        name: sample-app
+        name: flask-app
         state: started
         enabled: yes
+        exec_start: /usr/bin/python3 /opt/sample-app/examples/tutorial/flaskr/app.py
+        working_directory: /opt/sample-app/examples/tutorial

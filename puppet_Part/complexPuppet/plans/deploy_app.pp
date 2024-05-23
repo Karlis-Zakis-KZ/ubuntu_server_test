@@ -14,7 +14,7 @@ plan simple_puppet_bolt::deploy_app (
     }
 
     exec { 'Clone repository':
-      command => '/usr/bin/git clone https://github.com/sample/sample-app.git /opt/sample-app',
+      command => '/usr/bin/git clone https://github.com/pallets/flask.git /opt/sample-app',
       creates => '/opt/sample-app',
     }
 
@@ -24,16 +24,18 @@ plan simple_puppet_bolt::deploy_app (
     }
 
     exec { 'Install dependencies':
-      command => '/usr/bin/pip3 install -r /opt/sample-app/requirements.txt',
+      command => '/usr/bin/pip3 install -r /opt/sample-app/examples/tutorial/requirements.txt',
     }
 
-    file { '/opt/sample-app/config.ini':
-      content => epp('templates/config.epp'),
+    file { '/opt/sample-app/examples/tutorial/config.ini':
+      content => "[database]\nhost = localhost\nuser = sampleuser\npassword = samplepassword\ndatabase = sampledb\n",
     }
 
-    service { 'sample-app':
+    service { 'flask-app':
       ensure => running,
       enable => true,
+      exec_start => '/usr/bin/python3 /opt/sample-app/examples/tutorial/flaskr/app.py',
+      working_directory => '/opt/sample-app/examples/tutorial',
     }
   }
 }
