@@ -7,7 +7,7 @@ def run_puppet_bolt_plan(plan, inventory, targets, iteration):
     start_time = time.time()
 
     # Start sniffing packets
-    packets = sniff(timeout=60)  # Adjust timeout based on expected duration
+    packets = sniff(timeout=600)  # Adjust timeout based on expected duration
 
     # Run the Puppet Bolt plan
     result = subprocess.run(
