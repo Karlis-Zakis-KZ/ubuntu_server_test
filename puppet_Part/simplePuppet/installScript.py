@@ -6,10 +6,9 @@ import os
 def run_puppet_bolt_plan(plan, inventory, targets, iteration):
     start_time = time.time()
 
-    # Start sniffing packets
-    packets = sniff(timeout=300)  # Adjust timeout based on expected duration
+    print(f"Running Puppet Bolt plan iteration {iteration}")
+    packets = sniff(timeout=180)  # Adjust timeout based on expected duration
 
-    # Run the Puppet Bolt plan
     result = subprocess.run(
         ["bolt", "plan", "run", plan, "--targets", targets, "--inventoryfile", inventory],
         capture_output=True,
@@ -19,11 +18,9 @@ def run_puppet_bolt_plan(plan, inventory, targets, iteration):
     end_time = time.time()
     duration = end_time - start_time
 
-    # Save captured packets to a file
     pcap_file = f"bolt_packets_{iteration}.pcap"
     wrpcap(pcap_file, packets)
 
-    # Calculate statistics
     num_packets = len(packets)
     file_size = os.path.getsize(pcap_file) / 1024  # in KB
     data_size = sum(len(pkt) for pkt in packets) / 1024  # in KB
@@ -31,6 +28,10 @@ def run_puppet_bolt_plan(plan, inventory, targets, iteration):
     data_bit_rate = data_byte_rate * 8  # in kbps
     avg_packet_size = (data_size * 1024) / num_packets if num_packets > 0 else 0  # in bytes
     avg_packet_rate = num_packets / duration  # in packets/s
+
+    print(f"Iteration {iteration} completed in {duration:.2f} seconds")
+    print("STDOUT:", result.stdout)
+    print("STDERR:", result.stderr)
 
     return {
         "run": iteration,
@@ -45,22 +46,22 @@ def run_puppet_bolt_plan(plan, inventory, targets, iteration):
     }
 
 if __name__ == "__main__":
-    plan_install = "simple_puppet_bolt::install_nginx"
-    plan_revert = "simple_puppet_bolt::revert_nginx"
+    plan_deploy = "simple_puppet_bolt::install_nginx"
+    plan_remove = "simple_puppet_bolt::remove_nginx"
     inventory = "inventory.yaml"
     targets = "192.168.21.138"
 
-    install_stats = []
-    revert_stats = []
+    deploy_stats = []
+    remove_stats = []
 
-    for i in range(10):
-        install_stat = run_puppet_bolt_plan(plan_install, inventory, targets, f"install_{i+1}")
-        install_stats.append(install_stat)
-        print(f"Install Run {i+1} Stats:", install_stat)
+    for i in range(1, 4):  # Run a few iterations to test
+        print(f"Deploy Run {i}")
+        deploy_stat = run_puppet_bolt_plan(plan_deploy, inventory, targets, f"deploy_{i}")
+        deploy_stats.append(deploy_stat)
 
-        revert_stat = run_puppet_bolt_plan(plan_revert, inventory, targets, f"revert_{i+1}")
-        revert_stats.append(revert_stat)
-        print(f"Revert Run {i+1} Stats:", revert_stat)
-    
-    print("Install Stats:", install_stats)
-    print("Revert Stats:", revert_stats)
+        print(f"Remove Run {i}")
+        remove_stat = run_puppet_bolt_plan(plan_remove, inventory, targets, f"remove_{i}")
+        remove_stats.append(remove_stat)
+
+    print("Deploy Stats:", deploy_stats)
+    print("Remove Stats:", remove_stats)
