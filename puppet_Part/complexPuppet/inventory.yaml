@@ -1,0 +1,8 @@
+version: 2
+targets:
+  - uri: 192.168.21.138
+    config:
+      transport: ssh
+      ssh:
+        user: karlis
+        password: zakis123
