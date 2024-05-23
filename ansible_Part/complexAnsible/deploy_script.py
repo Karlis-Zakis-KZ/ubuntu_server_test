@@ -46,13 +46,20 @@ def run_ansible_playbook(playbook, inventory, iteration):
 
 if __name__ == "__main__":
     playbook_deploy = "deploy_app.yml"
+    playbook_remove = "remove_app.yml"
     inventory = "inventory.ini"
 
     deploy_stats = []
+    remove_stats = []
 
     for i in range(10):
         deploy_stat = run_ansible_playbook(playbook_deploy, inventory, f"deploy_{i+1}")
         deploy_stats.append(deploy_stat)
         print(f"Deploy Run {i+1} Stats:", deploy_stat)
+
+        remove_stat = run_ansible_playbook(playbook_remove, inventory, f"remove_{i+1}")
+        remove_stats.append(remove_stat)
+        print(f"Remove Run {i+1} Stats:", remove_stat)
     
     print("Deploy Stats:", deploy_stats)
+    print("Remove Stats:", remove_stats)

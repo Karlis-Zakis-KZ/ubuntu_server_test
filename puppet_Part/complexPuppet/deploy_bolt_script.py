@@ -46,14 +46,21 @@ def run_puppet_bolt_plan(plan, inventory, targets, iteration):
 
 if __name__ == "__main__":
     plan_deploy = "simple_puppet_bolt::deploy_app"
+    plan_remove = "simple_puppet_bolt::remove_app"
     inventory = "inventory.yaml"
     targets = "192.168.21.138"
 
     deploy_stats = []
+    remove_stats = []
 
     for i in range(10):
         deploy_stat = run_puppet_bolt_plan(plan_deploy, inventory, targets, f"deploy_{i+1}")
         deploy_stats.append(deploy_stat)
         print(f"Deploy Run {i+1} Stats:", deploy_stat)
+
+        remove_stat = run_puppet_bolt_plan(plan_remove, inventory, targets, f"remove_{i+1}")
+        remove_stats.append(remove_stat)
+        print(f"Remove Run {i+1} Stats:", remove_stat)
     
     print("Deploy Stats:", deploy_stats)
+    print("Remove Stats:", remove_stats)

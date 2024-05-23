@@ -1,0 +1,36 @@
+---
+- name: Revert Sample Application Deployment
+  hosts: target_server
+  become: yes
+  tasks:
+    - name: Stop the application service
+      systemd:
+        name: sample-app
+        state: stopped
+        enabled: no
+
+    - name: Remove the application directory
+      file:
+        path: /opt/sample-app
+        state: absent
+
+    - name: Remove MySQL database and user
+      mysql_db:
+        name: sampledb
+        state: absent
+        login_user: root
+        login_password: your_root_password
+    - mysql_user:
+        name: sampleuser
+        state: absent
+        login_user: root
+        login_password: your_root_password
+
+    - name: Uninstall necessary packages
+      apt:
+        name:
+          - git
+          - python3
+          - python3-pip
+          - mysql-server
+        state: absent
