@@ -1,4 +1,4 @@
-plan revert_nginx (
+plan simple_puppet_bolt::revert_nginx (
   TargetSpec $nodes,
 ) {
   apply_prep($nodes)

@@ -1,4 +1,4 @@
-plan install_nginx (
+plan simple_puppet_bolt::install_nginx (
   TargetSpec $nodes,
 ) {
   apply_prep($nodes)

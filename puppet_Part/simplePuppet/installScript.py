@@ -45,8 +45,8 @@ def run_puppet_bolt_plan(plan, inventory, targets, iteration):
     }
 
 if __name__ == "__main__":
-    plan_install = "install_nginx.pp"
-    plan_revert = "revert_nginx.pp"
+    plan_install = "simple_puppet_bolt::install_nginx"
+    plan_revert = "simple_puppet_bolt::revert_nginx"
     inventory = "inventory.yaml"
     targets = "192.168.21.138"
 
