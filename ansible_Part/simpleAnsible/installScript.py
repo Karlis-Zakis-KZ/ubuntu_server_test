@@ -7,7 +7,7 @@ def run_ansible_playbook(playbook, inventory, iteration):
     start_time = time.time()
 
     # Start sniffing packets
-    packets = sniff(timeout=60)  # Adjust timeout based on expected duration
+    packets = sniff(timeout=300)  # Adjust timeout based on expected duration
 
     # Run the Ansible playbook
     result = subprocess.run(
