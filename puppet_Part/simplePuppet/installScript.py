@@ -2,7 +2,7 @@ import subprocess
 import time
 from scapy.all import sniff, wrpcap
 
-def run_puppet_bolt_plan(plan, inventory, targets):
+def run_puppet_bolt_plan(plan, inventory, targets, iteration):
     start_time = time.time()
     
     # Start sniffing packets
@@ -19,16 +19,28 @@ def run_puppet_bolt_plan(plan, inventory, targets):
     duration = end_time - start_time
 
     # Save captured packets to a file
-    wrpcap("bolt_install_packets.pcap", packets)
+    pcap_file = f"bolt_packets_{iteration}.pcap"
+    wrpcap(pcap_file, packets)
 
-    return result.stdout, result.stderr, duration
+    return result.stdout, result.stderr, duration, pcap_file
 
 if __name__ == "__main__":
-    plan = "install_nginx.pp"
+    plan_install = "install_nginx.pp"
+    plan_revert = "revert_nginx.pp"
     inventory = "inventory.yaml"
     targets = "192.168.21.138"
-    stdout, stderr, duration = run_puppet_bolt_plan(plan, inventory, targets)
-
-    print("STDOUT:", stdout)
-    print("STDERR:", stderr)
-    print("Duration:", duration, "seconds")
+    
+    install_durations = []
+    revert_durations = []
+    
+    for i in range(10):
+        stdout, stderr, duration, pcap_file = run_puppet_bolt_plan(plan_install, inventory, targets, f"install_{i+1}")
+        install_durations.append(duration)
+        print(f"Run {i+1} Install Duration:", duration, "seconds")
+        
+        stdout, stderr, duration, pcap_file = run_puppet_bolt_plan(plan_revert, inventory, targets, f"revert_{i+1}")
+        revert_durations.append(duration)
+        print(f"Run {i+1} Revert Duration:", duration, "seconds")
+    
+    print("Install Durations:", install_durations)
+    print("Revert Durations:", revert_durations)
