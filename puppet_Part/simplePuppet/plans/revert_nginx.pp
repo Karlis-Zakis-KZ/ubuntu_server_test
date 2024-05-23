@@ -1,16 +1,30 @@
-plan simple_puppet_bolt::revert_nginx (
+plan simple_puppet_bolt::remove_nginx (
   TargetSpec $nodes,
 ) {
-  apply_prep($nodes)
+  bolt::task { 'stop_nginx':
+    targets => $nodes,
+    task    => 'service',
+    params  => {
+      action => 'stop',
+      name   => 'nginx',
+    },
+  }
 
-  apply($nodes) {
-    service { 'nginx':
-      ensure => stopped,
-      enable => false,
-    }
+  bolt::task { 'disable_nginx':
+    targets => $nodes,
+    task    => 'service',
+    params  => {
+      action => 'disable',
+      name   => 'nginx',
+    },
+  }
 
-    package { 'nginx':
-      ensure => absent,
-    }
+  bolt::task { 'remove_nginx':
+    targets => $nodes,
+    task    => 'package',
+    params  => {
+      action => 'uninstall',
+      name   => 'nginx',
+    },
   }
 }

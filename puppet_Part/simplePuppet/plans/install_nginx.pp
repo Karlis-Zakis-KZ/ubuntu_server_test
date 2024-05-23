@@ -1,16 +1,30 @@
 plan simple_puppet_bolt::install_nginx (
   TargetSpec $nodes,
 ) {
-  apply_prep($nodes)
+  bolt::task { 'install_nginx':
+    targets => $nodes,
+    task    => 'package',
+    params  => {
+      action => 'install',
+      name   => 'nginx',
+    },
+  }
 
-  apply($nodes) {
-    package { 'nginx':
-      ensure => installed,
-    }
+  bolt::task { 'start_nginx':
+    targets => $nodes,
+    task    => 'service',
+    params  => {
+      action => 'start',
+      name   => 'nginx',
+    },
+  }
 
-    service { 'nginx':
-      ensure => running,
-      enable => true,
-    }
+  bolt::task { 'enable_nginx':
+    targets => $nodes,
+    task    => 'service',
+    params  => {
+      action => 'enable',
+      name   => 'nginx',
+    },
   }
 }
