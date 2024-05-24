@@ -7,11 +7,10 @@ import logging
 # Configure logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
-def run_puppet_bolt_plan(plan, inventory, targets, iteration, task_name):
-    # Ensure the plan exists
-    plan_file = os.path.join("plans", f"{plan.split('::')[-1]}.pp")
-    if not os.path.exists(plan_file):
-        logging.error(f"Plan file {plan_file} does not exist.")
+def run_ansible_playbook(playbook, inventory, iteration, task_name):
+    # Ensure the playbook exists
+    if not os.path.exists(playbook):
+        logging.error(f"Playbook {playbook} does not exist.")
         return {
             "run": iteration,
             "task": task_name,
@@ -23,7 +22,7 @@ def run_puppet_bolt_plan(plan, inventory, targets, iteration, task_name):
             "data_bit_rate": 0,
             "avg_packet_size": 0,
             "avg_packet_rate": 0,
-            "error": f"Plan file {plan_file} does not exist."
+            "error": f"Playbook {playbook} does not exist."
         }
 
     # Start packet sniffing
@@ -33,9 +32,9 @@ def run_puppet_bolt_plan(plan, inventory, targets, iteration, task_name):
 
     start_time = time.time()
 
-    logging.debug(f"Running Puppet Bolt plan {plan} for {task_name} iteration {iteration}")
+    logging.debug(f"Running Ansible playbook {playbook} for {task_name} iteration {iteration}")
     result = subprocess.run(
-        ["bolt", "plan", "run", plan, "--targets", targets, "--inventoryfile", inventory],
+        ["ansible-playbook", "-i", inventory, playbook],
         capture_output=True,
         text=True
     )
@@ -75,21 +74,20 @@ def run_puppet_bolt_plan(plan, inventory, targets, iteration, task_name):
     }
 
 if __name__ == "__main__":
-    plan_deploy = "complex_puppet_bolt::deploy_app"
-    plan_remove = "complex_puppet_bolt::remove_app"
-    inventory = "inventory.yaml"
-    targets = "192.168.21.138"
+    playbook_deploy = "complex_install.yml"
+    playbook_remove = "complex_remove.yml"
+    inventory = "inventory.ini"
 
     deploy_stats = []
     remove_stats = []
 
     for i in range(1, 11):  # Run a few iterations to test
         logging.debug(f"Deploy Run {i}")
-        deploy_stat = run_puppet_bolt_plan(plan_deploy, inventory, targets, f"deploy_{i}", "deploy")
+        deploy_stat = run_ansible_playbook(playbook_deploy, inventory, f"deploy_{i}", "deploy")
         deploy_stats.append(deploy_stat)
 
         logging.debug(f"Remove Run {i}")
-        remove_stat = run_puppet_bolt_plan(plan_remove, inventory, targets, f"remove_{i}", "remove")
+        remove_stat = run_ansible_playbook(playbook_remove, inventory, f"remove_{i}", "remove")
         remove_stats.append(remove_stat)
 
     logging.debug("Deploy Stats: %s", deploy_stats)

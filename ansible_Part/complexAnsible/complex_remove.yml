@@ -1,0 +1,33 @@
+---
+- name: Revert Sample Application Deployment
+  hosts: target_server
+  become: yes
+  tasks:
+    - name: Stop the application service
+      systemd:
+        name: flask-app
+        state: stopped
+
+    - name: Remove application files
+      file:
+        path: /opt/sample-app
+        state: absent
+
+    - name: Remove MySQL user
+      mysql_user:
+        name: sample_user
+        host: localhost
+        state: absent
+
+    - name: Drop database
+      mysql_db:
+        name: sample_db
+        state: absent
+
+    - name: Uninstall necessary packages
+      apt:
+        name:
+          - python3-pip
+          - python3-mysqldb
+          - mysql-server
+        state: absent
