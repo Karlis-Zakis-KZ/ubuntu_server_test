@@ -2,6 +2,8 @@
 - name: Deploy Sample Application
   hosts: target_server
   become: yes
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
   tasks:
     - name: Install necessary packages
       apt:
@@ -13,6 +15,9 @@
         state: present
         update_cache: yes
 
+    - name: Install mysqlclient via pip3
+      command: /usr/bin/pip3 install mysqlclient
+
     - name: Start MySQL service
       service:
         name: mysql
@@ -23,8 +28,6 @@
       mysql_db:
         name: sample_db
         state: present
-      vars:
-        ansible_python_interpreter: /usr/bin/python3
 
     - name: Create MySQL user
       mysql_user:
@@ -32,8 +35,6 @@
         password: sample_pass
         priv: 'sample_db.*:ALL'
         state: present
-      vars:
-        ansible_python_interpreter: /usr/bin/python3
 
     - name: Clone the application repository
       git:

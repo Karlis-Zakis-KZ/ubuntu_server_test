@@ -2,6 +2,8 @@
 - name: Revert Sample Application Deployment
   hosts: target_server
   become: yes
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
   tasks:
     - name: Stop the application service
       systemd:
@@ -27,15 +29,11 @@
         name: sample_user
         host: localhost
         state: absent
-      vars:
-        ansible_python_interpreter: /usr/bin/python3
 
     - name: Drop database
       mysql_db:
         name: sample_db
         state: absent
-      vars:
-        ansible_python_interpreter: /usr/bin/python3
 
     - name: Uninstall necessary packages
       apt:
