@@ -17,7 +17,7 @@ def run_bolt_plan(plan, targets, iteration, task_name):
 
     logging.debug(f"Running Puppet Bolt plan {plan} for {task_name} iteration {iteration}")
     result = subprocess.run(
-        ["bolt", "plan", "run", plan, f"targets={targets}"],
+        ["bolt", "plan", "run", plan, f"targets={targets}", "--run-as", "root"],
         capture_output=True,
         text=True
     )
