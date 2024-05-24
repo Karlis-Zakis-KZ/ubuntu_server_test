@@ -1,26 +1,26 @@
-plan simple_puppet_bolt::remove_app (
-  TargetSpec $nodes,
+plan simple_puppet_bolt::revert_flask_app (
+  TargetSpec $targets
 ) {
-  apply_prep($nodes)
+  $targets.apply_prep
 
-  apply($nodes) {
-    service { 'flask-app':
-      ensure => stopped,
-      enable => false,
-    }
+  # Stop the application service
+  run_task('service', $targets, {'name' => 'flask-app', 'action' => 'stop'})
 
-    file { '/opt/sample-app':
-      ensure => absent,
-      recurse => true,
-      force => true,
-    }
+  # Remove application files
+  run_task('file', $targets, {'path' => '/opt/sample-app', 'action' => 'delete'})
 
-    exec { 'Remove database and user':
-      command => "mysql -u root -pyour_root_password -e 'DROP DATABASE IF EXISTS sampledb; DROP USER IF EXISTS \"sampleuser\"@\"localhost\";'",
-    }
+  # Remove systemd service file
+  run_task('file', $targets, {'path' => '/etc/systemd/system/flask-app.service', 'action' => 'delete'})
 
-    package { ['git', 'python3', 'python3-pip', 'mysql-server']:
-      ensure => absent,
-    }
-  }
+  # Reload systemd
+  run_task('command', $targets, {'command' => 'systemctl daemon-reload'})
+
+  # Remove MySQL user
+  run_task('command', $targets, {'command' => 'mysql -u root -e "DROP USER IF EXISTS \'sample_user\'@\'localhost\';"'})
+
+  # Drop database
+  run_task('command', $targets, {'command' => 'mysql -u root -e "DROP DATABASE IF EXISTS sample_db"'})
+
+  # Uninstall necessary packages
+  run_task('package', $targets, {'name' => ['python3-pip', 'default-libmysqlclient-dev', 'mysql-server', 'python3-mysql.connector', 'python3-venv'], 'action' => 'uninstall'})
 }

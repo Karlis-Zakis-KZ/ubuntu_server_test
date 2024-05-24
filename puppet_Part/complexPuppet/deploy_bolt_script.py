@@ -7,24 +7,7 @@ import logging
 # Configure logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
-def run_ansible_playbook(playbook, inventory, iteration, task_name):
-    # Ensure the playbook exists
-    if not os.path.exists(playbook):
-        logging.error(f"Playbook {playbook} does not exist.")
-        return {
-            "run": iteration,
-            "task": task_name,
-            "duration": 0,
-            "num_packets": 0,
-            "file_size": 0,
-            "data_size": 0,
-            "data_byte_rate": 0,
-            "data_bit_rate": 0,
-            "avg_packet_size": 0,
-            "avg_packet_rate": 0,
-            "error": f"Playbook {playbook} does not exist."
-        }
-
+def run_bolt_plan(plan, targets, iteration, task_name):
     # Start packet sniffing
     logging.debug(f"Starting packet sniffing for {task_name} iteration {iteration}")
     sniffer = AsyncSniffer()
@@ -32,9 +15,9 @@ def run_ansible_playbook(playbook, inventory, iteration, task_name):
 
     start_time = time.time()
 
-    logging.debug(f"Running Ansible playbook {playbook} for {task_name} iteration {iteration}")
+    logging.debug(f"Running Puppet Bolt plan {plan} for {task_name} iteration {iteration}")
     result = subprocess.run(
-        ["ansible-playbook", "-i", inventory, playbook],
+        ["bolt", "plan", "run", plan, f"targets={targets}"],
         capture_output=True,
         text=True
     )
@@ -74,20 +57,20 @@ def run_ansible_playbook(playbook, inventory, iteration, task_name):
     }
 
 if __name__ == "__main__":
-    playbook_deploy = "complex_install.yml"
-    playbook_remove = "complex_remove.yml"
-    inventory = "inventory.ini"
+    plan_deploy = "simple_puppet_bolt::install_flask_app"
+    plan_remove = "simple_puppet_bolt::revert_flask_app"
+    targets = "target_server"
 
     deploy_stats = []
     remove_stats = []
 
     for i in range(1, 11):  # Run a few iterations to test
         logging.debug(f"Deploy Run {i}")
-        deploy_stat = run_ansible_playbook(playbook_deploy, inventory, f"deploy_{i}", "deploy")
+        deploy_stat = run_bolt_plan(plan_deploy, targets, f"deploy_{i}", "deploy")
         deploy_stats.append(deploy_stat)
 
         logging.debug(f"Remove Run {i}")
-        remove_stat = run_ansible_playbook(playbook_remove, inventory, f"remove_{i}", "remove")
+        remove_stat = run_bolt_plan(plan_remove, targets, f"remove_{i}", "remove")
         remove_stats.append(remove_stat)
 
     logging.debug("Deploy Stats: %s", deploy_stats)
