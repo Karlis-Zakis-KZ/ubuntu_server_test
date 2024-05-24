@@ -3,8 +3,7 @@ plan complex_bolt::remove_app (
 ) {
   # Check if Flask application service exists and stop it
   $service_check = run_command('systemctl status flask-app', $targets, '_run_as' => 'root', '_catch_errors' => true)
-  $exit_code = $service_check['result_set'][0]['value']['exit_code']
-  if $exit_code == 0 {
+  if $service_check['result_set'][0]['value']['exit_code'] == 0 {
     run_task('service', $targets, 'name' => 'flask-app', 'action' => 'stop', '_run_as' => 'root')
     run_task('service', $targets, 'name' => 'flask-app', 'action' => 'disable', '_run_as' => 'root')
   } else {
