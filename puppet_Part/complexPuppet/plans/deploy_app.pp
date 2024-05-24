@@ -12,15 +12,15 @@ plan complex_bolt::deploy_app (
   run_task('service', $targets, 'name' => 'mysql', 'action' => 'start', '_run_as' => 'root')
 
   # Create database and user
-  run_task('command', $targets, 'command' => 'mysql -u root -e "CREATE DATABASE IF NOT EXISTS sample_db"', '_run_as' => 'root')
-  run_task('command', $targets, 'command' => 'mysql -u root -e "CREATE USER IF NOT EXISTS \'sample_user\'@\'localhost\' IDENTIFIED BY \'sample_pass\'; GRANT ALL PRIVILEGES ON sample_db.* TO \'sample_user\'@\'localhost\'; FLUSH PRIVILEGES;"', '_run_as' => 'root')
+  run_command('mysql -u root -e "CREATE DATABASE IF NOT EXISTS sample_db"', $targets, '_run_as' => 'root')
+  run_command('mysql -u root -e "CREATE USER IF NOT EXISTS \'sample_user\'@\'localhost\' IDENTIFIED BY \'sample_pass\'; GRANT ALL PRIVILEGES ON sample_db.* TO \'sample_user\'@\'localhost\'; FLUSH PRIVILEGES;"', $targets, '_run_as' => 'root')
 
   # Clone the application repository
   run_task('git', $targets, 'repository' => 'https://github.com/jainamoswal/Flask-Example', 'destination' => '/opt/sample-app', '_run_as' => 'root')
 
   # Create a virtual environment and install dependencies
-  run_task('command', $targets, 'command' => 'python3 -m venv /opt/sample-app/venv', '_run_as' => 'root')
-  run_task('command', $targets, 'command' => '/opt/sample-app/venv/bin/pip install -r /opt/sample-app/requirements.txt', '_run_as' => 'root')
+  run_command('python3 -m venv /opt/sample-app/venv', $targets, '_run_as' => 'root')
+  run_command('/opt/sample-app/venv/bin/pip install -r /opt/sample-app/requirements.txt', $targets, '_run_as' => 'root')
 
   # Create systemd service file
   $service_file = @("END"/L)
@@ -41,6 +41,6 @@ plan complex_bolt::deploy_app (
   run_task('file', $targets, 'path' => '/etc/systemd/system/flask-app.service', 'content' => $service_file, 'action' => 'create', '_run_as' => 'root')
 
   # Reload systemd and start the service
-  run_task('command', $targets, 'command' => 'systemctl daemon-reload', '_run_as' => 'root')
+  run_command('systemctl daemon-reload', $targets, '_run_as' => 'root')
   run_task('service', $targets, 'name' => 'flask-app', 'action' => 'start', 'enabled' => true, '_run_as' => 'root')
 }
