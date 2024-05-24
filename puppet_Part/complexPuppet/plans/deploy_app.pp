@@ -7,6 +7,7 @@ plan complex_bolt::deploy_app (
   run_task('package', $targets, 'name' => 'mysql-server', 'action' => 'install', '_run_as' => 'root')
   run_task('package', $targets, 'name' => 'python3-mysql.connector', 'action' => 'install', '_run_as' => 'root')
   run_task('package', $targets, 'name' => 'python3-venv', 'action' => 'install', '_run_as' => 'root')
+  run_task('package', $targets, 'name' => 'git', 'action' => 'install', '_run_as' => 'root')
 
   # Start MySQL service
   run_task('service', $targets, 'name' => 'mysql', 'action' => 'start', '_run_as' => 'root')
@@ -16,7 +17,7 @@ plan complex_bolt::deploy_app (
   run_command('mysql -u root -e "CREATE USER IF NOT EXISTS \'sample_user\'@\'localhost\' IDENTIFIED BY \'sample_pass\'; GRANT ALL PRIVILEGES ON sample_db.* TO \'sample_user\'@\'localhost\'; FLUSH PRIVILEGES;"', $targets, '_run_as' => 'root')
 
   # Clone the application repository
-  run_task('git', $targets, 'repository' => 'https://github.com/jainamoswal/Flask-Example', 'destination' => '/opt/sample-app', '_run_as' => 'root')
+  run_command('git clone https://github.com/jainamoswal/Flask-Example /opt/sample-app', $targets, '_run_as' => 'root')
 
   # Create a virtual environment and install dependencies
   run_command('python3 -m venv /opt/sample-app/venv', $targets, '_run_as' => 'root')

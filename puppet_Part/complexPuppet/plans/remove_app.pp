@@ -25,4 +25,5 @@ plan complex_bolt::remove_app (
   run_task('package', $targets, 'name' => 'mysql-server', 'action' => 'uninstall', '_run_as' => 'root')
   run_task('package', $targets, 'name' => 'python3-mysql.connector', 'action' => 'uninstall', '_run_as' => 'root')
   run_task('package', $targets, 'name' => 'python3-venv', 'action' => 'uninstall', '_run_as' => 'root')
+  run_task('package', $targets, 'name' => 'git', 'action' => 'uninstall', '_run_as' => 'root')
 }
