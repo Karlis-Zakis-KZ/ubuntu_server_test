@@ -74,8 +74,8 @@ def run_ansible_playbook(playbook, inventory, iteration, task_name):
     }
 
 if __name__ == "__main__":
-    playbook_deploy = "deploy_app.yml"
-    playbook_remove = "remove_app.yml"
+    playbook_deploy = "complex_install.yml"
+    playbook_remove = "complex_remove.yml"
     inventory = "inventory.ini"
 
     deploy_stats = []

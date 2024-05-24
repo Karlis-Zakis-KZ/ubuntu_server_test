@@ -7,12 +7,12 @@
       apt:
         name:
           - python3-pip
-          - python3-mysqldb
+          - default-libmysqlclient-dev
           - mysql-server
         state: present
         update_cache: yes
 
-    - name: Install mysqlclient
+    - name: Install mysqlclient via pip3
       pip:
         name: mysqlclient
         executable: pip3
@@ -23,17 +23,21 @@
         state: started
         enabled: yes
 
-    - name: Create database and user
+    - name: Create database
       mysql_db:
         name: sample_db
         state: present
+      vars:
+        ansible_python_interpreter: /usr/bin/python3
 
-    - name: Create a MySQL user
+    - name: Create MySQL user
       mysql_user:
         name: sample_user
         password: sample_pass
         priv: 'sample_db.*:ALL'
         state: present
+      vars:
+        ansible_python_interpreter: /usr/bin/python3
 
     - name: Clone the application repository
       git:
@@ -46,9 +50,29 @@
         requirements: /opt/sample-app/requirements.txt
         executable: pip3
 
-    - name: Configure and start the application service
+    - name: Create systemd service file
+      copy:
+        dest: /etc/systemd/system/flask-app.service
+        content: |
+          [Unit]
+          Description=Flask Application
+
+          [Service]
+          ExecStart=/usr/bin/python3 /opt/sample-app/app.py
+          Restart=always
+          User=root
+          Group=root
+          Environment=PYTHONUNBUFFERED=1
+
+          [Install]
+          WantedBy=multi-user.target
+
+    - name: Reload systemd to register the flask-app service
+      systemd:
+        daemon_reload: yes
+
+    - name: Start and enable flask-app service
       systemd:
         name: flask-app
         enabled: yes
         state: started
-        exec_start: /usr/bin/python3 /opt/sample-app/app.py
