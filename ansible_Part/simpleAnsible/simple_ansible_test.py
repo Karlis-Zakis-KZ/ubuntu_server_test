@@ -1,6 +1,6 @@
 import subprocess
 import time
-from scapy.all import sniff, wrpcap
+from scapy.all import sniff, wrpcap, AsyncSniffer
 import os
 import logging
 
@@ -10,7 +10,8 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 def run_ansible_playbook(playbook, inventory, iteration, task_name):
     # Start packet sniffing
     logging.debug(f"Starting packet sniffing for {task_name} iteration {iteration}")
-    packets = sniff(timeout=120)  # Adjust timeout based on expected duration
+    sniffer = AsyncSniffer()
+    sniffer.start()
 
     start_time = time.time()
 
@@ -25,6 +26,7 @@ def run_ansible_playbook(playbook, inventory, iteration, task_name):
     duration = end_time - start_time
 
     # Stop packet sniffing
+    packets = sniffer.stop()
     pcap_file = f"{task_name}_packets_{iteration}.pcap"
     wrpcap(pcap_file, packets)
     logging.debug(f"Packet sniffing stopped for {task_name} iteration {iteration}")
@@ -62,7 +64,7 @@ if __name__ == "__main__":
     deploy_stats = []
     remove_stats = []
 
-    for i in range(1, 4):  # Run a few iterations to test
+    for i in range(1, 10):  # Run a few iterations to test
         logging.debug(f"Deploy Run {i}")
         deploy_stat = run_ansible_playbook(playbook_deploy, inventory, f"deploy_{i}", "deploy")
         deploy_stats.append(deploy_stat)
