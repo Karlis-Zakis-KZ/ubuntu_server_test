@@ -57,8 +57,8 @@ def run_bolt_plan(plan, targets, iteration, task_name):
     }
 
 if __name__ == "__main__":
-    plan_deploy = "simple_puppet_bolt::install_flask_app"
-    plan_remove = "simple_puppet_bolt::revert_flask_app"
+    plan_deploy = "complex_bolt::deploy_app"
+    plan_remove = "complex_bolt::revert_app"
     targets = "target_server"
 
     deploy_stats = []

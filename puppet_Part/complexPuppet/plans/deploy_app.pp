@@ -1,4 +1,4 @@
-plan simple_puppet_bolt::install_flask_app (
+plan complex_bolt::deploy_app (
   TargetSpec $targets
 ) {
   $targets.apply_prep

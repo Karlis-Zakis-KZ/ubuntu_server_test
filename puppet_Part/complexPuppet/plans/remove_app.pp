@@ -1,4 +1,4 @@
-plan simple_puppet_bolt::revert_flask_app (
+plan complex_bolt::revert_app (
   TargetSpec $targets
 ) {
   $targets.apply_prep
@@ -16,7 +16,7 @@ plan simple_puppet_bolt::revert_flask_app (
   run_task('command', $targets, {'command' => 'systemctl daemon-reload'})
 
   # Remove MySQL user
-  run_task('command', $targets, {'command' => 'mysql -u root -e "DROP USER IF EXISTS \'sample_user\'@\'localhost\';"'})
+  run_task('command', $targets, {'command' => 'mysql -u root -e "DROP USER IF EXISTS \'sample_user\'@\'localhost\'"'})
 
   # Drop database
   run_task('command', $targets, {'command' => 'mysql -u root -e "DROP DATABASE IF EXISTS sample_db"'})
