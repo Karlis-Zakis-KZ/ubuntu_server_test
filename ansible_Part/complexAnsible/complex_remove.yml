@@ -42,4 +42,5 @@
           - default-libmysqlclient-dev
           - mysql-server
           - python3-mysql.connector
+          - python3-mysqldb
         state: absent
