@@ -44,7 +44,7 @@
     - name: Install application dependencies
       pip:
         requirements: /opt/sample-app/requirements.txt
-        executable: pip3
+        executable: /usr/bin/pip3
 
     - name: Create systemd service file
       copy:
