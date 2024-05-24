@@ -59,7 +59,7 @@ def run_bolt_plan(plan, targets, iteration, task_name):
 if __name__ == "__main__":
     plan_deploy = "complex_bolt::deploy_app"
     plan_remove = "complex_bolt::remove_app"
-    targets = "target_server"
+    targets = "target_group"
 
     deploy_stats = []
     remove_stats = []
