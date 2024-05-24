@@ -9,13 +9,9 @@
           - python3-pip
           - default-libmysqlclient-dev
           - mysql-server
+          - python3-mysql.connector
         state: present
         update_cache: yes
-
-    - name: Install mysqlclient via pip3
-      pip:
-        name: mysqlclient
-        executable: pip3
 
     - name: Start MySQL service
       service:
