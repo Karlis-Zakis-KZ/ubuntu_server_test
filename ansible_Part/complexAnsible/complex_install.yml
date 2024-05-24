@@ -1,5 +1,5 @@
 ---
-- name: Deploy Sample Application
+- name: Deploy Sample Flask Application
   hosts: target_server
   become: yes
   vars:
@@ -12,7 +12,7 @@
           - default-libmysqlclient-dev
           - mysql-server
           - python3-mysql.connector
-          - python3-mysqldb
+          - python3-venv
         state: present
         update_cache: yes
 
@@ -36,14 +36,15 @@
 
     - name: Clone the application repository
       git:
-        repo: 'https://github.com/Karlis-Zakis-KZ/m1p1'
+        repo: 'https://github.com/jainamoswal/Flask-Example'
         dest: /opt/sample-app
         version: main
 
-    - name: Install application dependencies
-      pip:
-        requirements: /opt/sample-app/requirements.txt
-        executable: /usr/bin/pip3
+    - name: Create a virtual environment
+      command: python3 -m venv /opt/sample-app/venv
+
+    - name: Install application dependencies in the virtual environment
+      command: /opt/sample-app/venv/bin/pip install -r /opt/sample-app/requirements.txt
 
     - name: Create systemd service file
       copy:
@@ -53,7 +54,7 @@
           Description=Flask Application
 
           [Service]
-          ExecStart=/usr/bin/python3 /opt/sample-app/app.py
+          ExecStart=/opt/sample-app/venv/bin/python /opt/sample-app/run.py
           Restart=always
           User=root
           Group=root
