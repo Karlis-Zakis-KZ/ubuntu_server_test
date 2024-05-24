@@ -57,7 +57,7 @@ def run_puppet_bolt_plan(plan, inventory, targets, iteration, task_name):
 if __name__ == "__main__":
     plan_deploy = "simple_puppet_bolt::install_nginx"
     plan_remove = "simple_puppet_bolt::remove_nginx"
-    inventory = "inventory.yaml"
+    inventory = "inventory.ini"
     targets = "192.168.21.138"
 
     deploy_stats = []
