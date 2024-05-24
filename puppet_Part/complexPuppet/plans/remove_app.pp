@@ -1,4 +1,4 @@
-plan complex_bolt::revert_app (
+plan complex_bolt::remove_app (
   TargetSpec $targets
 ) {
   $targets.apply_prep
