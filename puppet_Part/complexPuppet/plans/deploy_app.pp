@@ -23,25 +23,39 @@ plan complex_bolt::deploy_app (
   run_command('python3 -m venv /opt/sample-app/venv', $targets, '_run_as' => 'root')
   run_command('/opt/sample-app/venv/bin/pip install -r /opt/sample-app/requirements.txt', $targets, '_run_as' => 'root')
 
-  # Create systemd service file
-  $service_file = @("END"/L)
-  [Unit]
-  Description=Flask Application
+  # Prepare targets for applying Puppet code
+  apply_prep($targets)
 
-  [Service]
-  ExecStart=/opt/sample-app/venv/bin/python /opt/sample-app/run.py
-  Restart=always
-  User=root
-  Group=root
-  Environment=PYTHONUNBUFFERED=1
+  # Apply Puppet code to create systemd service file
+  apply($targets) {
+    file { '/etc/systemd/system/flask-app.service':
+      ensure  => 'file',
+      content => @(END)
+        [Unit]
+        Description=Flask Application
 
-  [Install]
-  WantedBy=multi-user.target
-  END
+        [Service]
+        ExecStart=/opt/sample-app/venv/bin/python /opt/sample-app/run.py
+        Restart=always
+        User=root
+        Group=root
+        Environment=PYTHONUNBUFFERED=1
 
-  run_task('file', $targets, 'path' => '/etc/systemd/system/flask-app.service', 'content' => $service_file, 'action' => 'create', '_run_as' => 'root')
+        [Install]
+        WantedBy=multi-user.target
+        END
+    }
 
-  # Reload systemd and start the service
-  run_command('systemctl daemon-reload', $targets, '_run_as' => 'root')
-  run_task('service', $targets, 'name' => 'flask-app', 'action' => 'start', 'enabled' => true, '_run_as' => 'root')
+    # Reload systemd and start the service
+    exec { 'systemctl daemon-reload':
+      path => '/usr/bin:/bin:/usr/sbin:/sbin',
+    }
+
+    service { 'flask-app':
+      ensure    => 'running',
+      enable    => true,
+      hasstatus => true,
+      hasrestart => true,
+    }
+  }
 }

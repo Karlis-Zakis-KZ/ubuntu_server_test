@@ -4,19 +4,28 @@ plan complex_bolt::remove_app (
   # Stop Flask application service
   run_task('service', $targets, 'name' => 'flask-app', 'action' => 'stop', '_run_as' => 'root')
 
-  # Remove application files
-  run_task('file', $targets, 'path' => '/opt/sample-app', 'action' => 'delete', '_run_as' => 'root')
+  # Prepare targets for applying Puppet code
+  apply_prep($targets)
 
-  # Remove systemd service file
-  run_task('file', $targets, 'path' => '/etc/systemd/system/flask-app.service', 'action' => 'delete', '_run_as' => 'root')
+  # Apply Puppet code to remove systemd service file and application files
+  apply($targets) {
+    file { '/opt/sample-app':
+      ensure => 'absent',
+      force  => true,
+      recurse => true,
+    }
 
-  # Reload systemd
-  run_command('systemctl daemon-reload', $targets, '_run_as' => 'root')
+    file { '/etc/systemd/system/flask-app.service':
+      ensure => 'absent',
+    }
 
-  # Remove MySQL user
+    exec { 'systemctl daemon-reload':
+      path => '/usr/bin:/bin:/usr/sbin:/sbin',
+    }
+  }
+
+  # Remove MySQL user and database
   run_command('mysql -u root -e "DROP USER IF EXISTS \'sample_user\'@\'localhost\'"', $targets, '_run_as' => 'root')
-
-  # Drop database
   run_command('mysql -u root -e "DROP DATABASE IF EXISTS sample_db"', $targets, '_run_as' => 'root')
 
   # Uninstall necessary packages
