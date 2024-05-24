@@ -1,26 +1,24 @@
 plan complex_bolt::remove_app (
   TargetSpec $targets
 ) {
-  $targets.apply_prep
-
-  # Stop the application service
-  run_task('service', $targets, {'name' => 'flask-app', 'action' => 'stop'})
+  # Ensure we are using an agentless approach
+  $targets.run_task('service', {'name' => 'flask-app', 'action' => 'stop'})
 
   # Remove application files
-  run_task('file', $targets, {'path' => '/opt/sample-app', 'action' => 'delete'})
+  $targets.run_task('file', {'path' => '/opt/sample-app', 'action' => 'delete'})
 
   # Remove systemd service file
-  run_task('file', $targets, {'path' => '/etc/systemd/system/flask-app.service', 'action' => 'delete'})
+  $targets.run_task('file', {'path' => '/etc/systemd/system/flask-app.service', 'action' => 'delete'})
 
   # Reload systemd
-  run_task('command', $targets, {'command' => 'systemctl daemon-reload'})
+  $targets.run_task('command', {'command' => 'systemctl daemon-reload'})
 
   # Remove MySQL user
-  run_task('command', $targets, {'command' => 'mysql -u root -e "DROP USER IF EXISTS \'sample_user\'@\'localhost\'"'})
+  $targets.run_task('command', {'command' => 'mysql -u root -e "DROP USER IF EXISTS \'sample_user\'@\'localhost\'"'})
 
   # Drop database
-  run_task('command', $targets, {'command' => 'mysql -u root -e "DROP DATABASE IF EXISTS sample_db"'})
+  $targets.run_task('command', {'command' => 'mysql -u root -e "DROP DATABASE IF EXISTS sample_db"'})
 
   # Uninstall necessary packages
-  run_task('package', $targets, {'name' => ['python3-pip', 'default-libmysqlclient-dev', 'mysql-server', 'python3-mysql.connector', 'python3-venv'], 'action' => 'uninstall'})
+  $targets.run_task('package', {'name' => ['python3-pip', 'default-libmysqlclient-dev', 'mysql-server', 'python3-mysql.connector', 'python3-venv'], 'action' => 'uninstall'})
 }
