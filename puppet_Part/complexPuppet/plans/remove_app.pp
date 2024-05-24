@@ -1,7 +1,7 @@
 plan complex_bolt::remove_app (
   TargetSpec $targets
 ) {
-  # Ensure we are using an agentless approach
+  # Stop Flask application service
   run_task('service', $targets, {'name' => 'flask-app', 'action' => 'stop'}, '_run_as' => 'root')
 
   # Remove application files

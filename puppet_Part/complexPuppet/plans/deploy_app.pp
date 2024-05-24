@@ -1,7 +1,7 @@
 plan complex_bolt::deploy_app (
   TargetSpec $targets
 ) {
-  # Ensure we are using an agentless approach
+  # Install necessary packages
   run_task('package', $targets, {'name' => 'python3-pip', 'action' => 'install'}, '_run_as' => 'root')
   run_task('package', $targets, {'name' => 'default-libmysqlclient-dev', 'action' => 'install'}, '_run_as' => 'root')
   run_task('package', $targets, {'name' => 'mysql-server', 'action' => 'install'}, '_run_as' => 'root')
@@ -11,10 +11,8 @@ plan complex_bolt::deploy_app (
   # Start MySQL service
   run_task('service', $targets, {'name' => 'mysql', 'action' => 'start'}, '_run_as' => 'root')
 
-  # Create database
+  # Create database and user
   run_task('command', $targets, {'command' => 'mysql -u root -e "CREATE DATABASE IF NOT EXISTS sample_db"'}, '_run_as' => 'root')
-
-  # Create MySQL user
   run_task('command', $targets, {'command' => 'mysql -u root -e "CREATE USER IF NOT EXISTS \'sample_user\'@\'localhost\' IDENTIFIED BY \'sample_pass\'; GRANT ALL PRIVILEGES ON sample_db.* TO \'sample_user\'@\'localhost\'; FLUSH PRIVILEGES;"'}, '_run_as' => 'root')
 
   # Clone the application repository
