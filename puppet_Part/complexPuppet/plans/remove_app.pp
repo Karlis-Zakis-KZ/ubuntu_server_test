@@ -1,14 +1,13 @@
 plan complex_bolt::remove_app (
   TargetSpec $targets
 ) {
-  # Check if Flask application service exists
+  # Check if Flask application service exists and stop it
   $service_check = run_command('systemctl status flask-app', $targets, '_run_as' => 'root', '_catch_errors' => true)
-
-  if $service_check['result_set'][0]['_error'] {
-    out::message("Service 'flask-app' not found. Skipping stop service step.")
-  } else {
-    # Stop Flask application service if it exists
+  if $service_check['result_set'][0]['exit_code'] == 0 {
     run_task('service', $targets, 'name' => 'flask-app', 'action' => 'stop', '_run_as' => 'root')
+    run_task('service', $targets, 'name' => 'flask-app', 'action' => 'disable', '_run_as' => 'root')
+  } else {
+    out::message("Service 'flask-app' not found. Skipping stop service step.")
   }
 
   # Prepare targets for applying Puppet code
