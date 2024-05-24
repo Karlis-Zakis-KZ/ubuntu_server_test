@@ -64,7 +64,7 @@ if __name__ == "__main__":
     deploy_stats = []
     remove_stats = []
 
-    for i in range(1, 4):  # Run a few iterations to test
+    for i in range(1, 11):  # Run a few iterations to test
         logging.debug(f"Deploy Run {i}")
         deploy_stat = run_bolt_plan(plan_deploy, targets, f"deploy_{i}", "deploy")
         deploy_stats.append(deploy_stat)
