@@ -2,23 +2,23 @@ plan complex_bolt::deploy_app (
   TargetSpec $targets
 ) {
   # Ensure we are using an agentless approach
-  $targets.run_task('package', {'name' => ['python3-pip', 'default-libmysqlclient-dev', 'mysql-server', 'python3-mysql.connector', 'python3-venv'], 'action' => 'install'})
+  run_task('package', $targets, {'name' => ['python3-pip', 'default-libmysqlclient-dev', 'mysql-server', 'python3-mysql.connector', 'python3-venv'], 'action' => 'install'})
 
   # Start MySQL service
-  $targets.run_task('service', {'name' => 'mysql', 'action' => 'start'})
+  run_task('service', $targets, {'name' => 'mysql', 'action' => 'start'})
 
   # Create database
-  $targets.run_task('command', {'command' => 'mysql -u root -e "CREATE DATABASE IF NOT EXISTS sample_db"'})
+  run_task('command', $targets, {'command' => 'mysql -u root -e "CREATE DATABASE IF NOT EXISTS sample_db"'})
 
   # Create MySQL user
-  $targets.run_task('command', {'command' => 'mysql -u root -e "CREATE USER IF NOT EXISTS \'sample_user\'@\'localhost\' IDENTIFIED BY \'sample_pass\'; GRANT ALL PRIVILEGES ON sample_db.* TO \'sample_user\'@\'localhost\'; FLUSH PRIVILEGES;"'})
+  run_task('command', $targets, {'command' => 'mysql -u root -e "CREATE USER IF NOT EXISTS \'sample_user\'@\'localhost\' IDENTIFIED BY \'sample_pass\'; GRANT ALL PRIVILEGES ON sample_db.* TO \'sample_user\'@\'localhost\'; FLUSH PRIVILEGES;"'})
 
   # Clone the application repository
-  $targets.run_task('git', {'repository' => 'https://github.com/jainamoswal/Flask-Example', 'destination' => '/opt/sample-app'})
+  run_task('git', $targets, {'repository' => 'https://github.com/jainamoswal/Flask-Example', 'destination' => '/opt/sample-app'})
 
   # Create a virtual environment and install dependencies
-  $targets.run_task('command', {'command' => 'python3 -m venv /opt/sample-app/venv'})
-  $targets.run_task('command', {'command' => '/opt/sample-app/venv/bin/pip install -r /opt/sample-app/requirements.txt'})
+  run_task('command', $targets, {'command' => 'python3 -m venv /opt/sample-app/venv'})
+  run_task('command', $targets, {'command' => '/opt/sample-app/venv/bin/pip install -r /opt/sample-app/requirements.txt'})
 
   # Create systemd service file
   $service_file = @("END"/L)
@@ -36,9 +36,9 @@ plan complex_bolt::deploy_app (
   WantedBy=multi-user.target
   END
 
-  $targets.run_task('file', {'path' => '/etc/systemd/system/flask-app.service', 'content' => $service_file, 'action' => 'create'})
+  run_task('file', $targets, {'path' => '/etc/systemd/system/flask-app.service', 'content' => $service_file, 'action' => 'create'})
 
   # Reload systemd and start the service
-  $targets.run_task('command', {'command' => 'systemctl daemon-reload'})
-  $targets.run_task('service', {'name' => 'flask-app', 'action' => 'start', 'enabled' => true})
+  run_task('command', $targets, {'command' => 'systemctl daemon-reload'})
+  run_task('service', $targets, {'name' => 'flask-app', 'action' => 'start', 'enabled' => true})
 }
