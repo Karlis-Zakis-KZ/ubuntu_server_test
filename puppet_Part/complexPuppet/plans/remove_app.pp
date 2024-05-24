@@ -4,7 +4,7 @@ plan complex_bolt::remove_app (
   # Check if Flask application service exists
   $service_check = run_command('systemctl status flask-app', $targets, '_run_as' => 'root', '_catch_errors' => true)
 
-  if $service_check['_error'] {
+  if $service_check['result_set'][0]['_error'] {
     out::message("Service 'flask-app' not found. Skipping stop service step.")
   } else {
     # Stop Flask application service if it exists
