@@ -20,5 +20,9 @@ plan complex_bolt::remove_app (
   run_task('command', $targets, {'command' => 'mysql -u root -e "DROP DATABASE IF EXISTS sample_db"'})
 
   # Uninstall necessary packages
-  run_task('package', $targets, {'name' => ['python3-pip', 'default-libmysqlclient-dev', 'mysql-server', 'python3-mysql.connector', 'python3-venv'], 'action' => 'uninstall'})
+  run_task('package', $targets, {'name' => 'python3-pip', 'action' => 'uninstall'})
+  run_task('package', $targets, {'name' => 'default-libmysqlclient-dev', 'action' => 'uninstall'})
+  run_task('package', $targets, {'name' => 'mysql-server', 'action' => 'uninstall'})
+  run_task('package', $targets, {'name' => 'python3-mysql.connector', 'action' => 'uninstall'})
+  run_task('package', $targets, {'name' => 'python3-venv', 'action' => 'uninstall'})
 }

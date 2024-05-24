@@ -2,7 +2,11 @@ plan complex_bolt::deploy_app (
   TargetSpec $targets
 ) {
   # Ensure we are using an agentless approach
-  run_task('package', $targets, {'name' => ['python3-pip', 'default-libmysqlclient-dev', 'mysql-server', 'python3-mysql.connector', 'python3-venv'], 'action' => 'install'})
+  run_task('package', $targets, {'name' => 'python3-pip', 'action' => 'install'})
+  run_task('package', $targets, {'name' => 'default-libmysqlclient-dev', 'action' => 'install'})
+  run_task('package', $targets, {'name' => 'mysql-server', 'action' => 'install'})
+  run_task('package', $targets, {'name' => 'python3-mysql.connector', 'action' => 'install'})
+  run_task('package', $targets, {'name' => 'python3-venv', 'action' => 'install'})
 
   # Start MySQL service
   run_task('service', $targets, {'name' => 'mysql', 'action' => 'start'})
