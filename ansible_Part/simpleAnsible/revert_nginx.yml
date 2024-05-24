@@ -1,5 +1,5 @@
 ---
-- name: Revert Nginx installation
+- name: Remove Nginx
   hosts: target_server
   become: yes
   tasks:
@@ -9,7 +9,7 @@
         state: stopped
         enabled: no
 
-    - name: Uninstall Nginx
+    - name: Remove Nginx
       apt:
         name: nginx
         state: absent
